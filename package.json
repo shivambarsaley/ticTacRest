@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "NODE_ENV=test lab -v",
     "migrate": "sequelize db:migrate"
   },
   "author": "",
@@ -17,5 +17,10 @@
     "pg-hstore": "^2.3.3",
     "sequelize": "^5.13.0",
     "sequelize-cli": "^5.5.0"
+  },
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "lab": "^18.0.2",
+    "sinon": "^7.4.1"
   }
 }
