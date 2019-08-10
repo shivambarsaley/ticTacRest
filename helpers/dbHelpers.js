@@ -1,12 +1,16 @@
 const Model = require('../models');
 const getGame = (id) => {
-  return Model.users_games.findOne({
-    where: {game_id: id},
-    include: {
-      model: Model.game
-    }
-  }).catch((e) => {
-    console.log(e);
+  return Promise.all([
+    Model.game.findByPk(id, {raw: true}),
+    Model.users_games.findAll({
+      where: {
+        game_id: id
+      },
+      raw: true,
+      attributes: ['user_id', 'moveset']
+    })
+  ]).then(([game, movesets]) => {
+    return {...game, movesets};
   })
 };
 
@@ -58,7 +62,6 @@ const findUser = (email) => {
 };
 
 const createUser = (params) => {
-  console.log(params);
   return Model.users.create(params);
 };
 
@@ -71,8 +74,28 @@ const updateMoveset = (playerId, gameId, moveset) => {
   })
 };
 
+const updatePlayerStatusInGame = (gameId, {playerId, status}) => {
+  return Model.users_games.update({result: status}, {
+    where: {
+      user_id: playerId,
+      game_id: gameId
+    }
+  })
+};
+
+const endGame = (id) => {
+  return Model.game.update({
+    status: 'CONCLUDED'
+  }, {
+    where: {
+      id
+    }
+  })
+};
+
 module.exports = {
   getGame, findAvailableGame, joinGame,
   beginGame, createGame, findUser,
-  createUser, getMovesForGame, updateMoveset
+  createUser, getMovesForGame, updateMoveset,
+  updatePlayerStatusInGame, endGame
 };

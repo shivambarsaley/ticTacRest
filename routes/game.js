@@ -34,5 +34,18 @@ module.exports = [
       const { playerId, moves, gameId} = request.payload;
       return handler.playMove(playerId, gameId, moves);
     }
+  },
+  {
+    method: 'PATCH',
+    path: '/game/conclude',
+    options: {
+      validate: {
+        payload: joiSchema.concludeGame
+      }
+    },
+    handler: (request) => {
+      const { playerStatus, gameId } = request.payload;
+      return handler.concludeGame(gameId, playerStatus)
+    }
   }
 ];

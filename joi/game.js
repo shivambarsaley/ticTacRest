@@ -10,4 +10,12 @@ const moveGame = Joi.object().keys({
   moves: Joi.number().required(),
 });
 
-module.exports = {startGame, moveGame };
+const concludeGame = Joi.object().keys({
+  playerStatus: Joi.array().items(Joi.object().keys({
+    playerId: Joi.number().required(),
+    status: Joi.string().valid(['WON','LOST','DRAW']).required()
+  })),
+  gameId: Joi.number().required()
+});
+
+module.exports = {startGame, moveGame, concludeGame };

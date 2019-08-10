@@ -1,11 +1,11 @@
 const dbHelper = require('../helpers/dbHelpers');
 const gameHelper = require('../helpers/gameHelper');
 const getGameWithId = (id) => {
-  return dbHelper.getGame(id);
+  return dbHelper.getGame(id)
 };
 
 const startGame = async (player_id, size) => {
-  const boardSize = size*size;
+  const boardSize = size * size;
   const availableGame = await dbHelper.findAvailableGame(boardSize);
   const moveset = new Array(boardSize);
   moveset.fill(0);
@@ -25,18 +25,26 @@ const startGame = async (player_id, size) => {
 const playMove = async (playerId, gameId, move) => {
   const allPlayerMoves = await dbHelper.getMovesForGame(gameId);
   const currentPlayerMoves = allPlayerMoves.find((playerMove) => playerMove.user_id === playerId);
-  console.log(allPlayerMoves, currentPlayerMoves);
   const [player1Moves, player2Moves] = allPlayerMoves.map((playerMove) => playerMove.moveset);
-  console.log(player1Moves, player2Moves);
   const combinedMoves = player1Moves.map((value, index) => value || player2Moves[index]);
-  console.log(combinedMoves);
-  if(combinedMoves[move]){
+  if (combinedMoves[move]) {
     return 'BAD MOVE'
   }
   currentPlayerMoves.moveset[move] = 1;
-  return  dbHelper.updateMoveset(playerId, gameId, currentPlayerMoves.moveset);
+  return dbHelper.updateMoveset(playerId, gameId, currentPlayerMoves.moveset);
+};
+
+const concludeGame = (gameId, playerStatus) => {
+  return Promise.all([
+    dbHelper.endGame(gameId),
+    ...playerStatus.map((status) => dbHelper.updatePlayerStatusInGame(gameId, status))
+  ]).then(() => ({
+    gameId,
+    status: 'Concluded'
+  }))
 };
 
 module.exports = {
-  getGameWithId, startGame, playMove
+  getGameWithId, startGame,
+  playMove, concludeGame
 };
