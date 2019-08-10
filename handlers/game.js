@@ -26,9 +26,12 @@ const playMove = async (playerId, gameId, move) => {
   const allPlayerMoves = await dbHelper.getMovesForGame(gameId);
   const currentPlayerMoves = allPlayerMoves.find((playerMove) => playerMove.user_id === playerId);
   const [player1Moves, player2Moves] = allPlayerMoves.map((playerMove) => playerMove.moveset);
+  if( !player1Moves || !player2Moves){
+    return { message: `Game  ${gameId} not found`}
+  }
   const combinedMoves = player1Moves.map((value, index) => value || player2Moves[index]);
-  if (combinedMoves[move]) {
-    return 'BAD MOVE'
+  if (combinedMoves[move] || move >= combinedMoves.length) {
+    return { message: 'BAD MOVE'}
   }
   currentPlayerMoves.moveset[move] = 1;
   return dbHelper.updateMoveset(playerId, gameId, currentPlayerMoves.moveset);
